@@ -1,10 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import UserList from "../../src/components/UserList";
 import { User } from "../../src/entities";
+
 describe("UserList", () => {
   it("should return no users available if user list is empty", () => {
     render(<UserList users={[]} />);
     const users = screen.getByText(new RegExp("No users available.", "i"));
+
     expect(users).toBeInTheDocument();
   });
 
@@ -14,6 +16,7 @@ describe("UserList", () => {
       { id: 2, name: "Leyla" },
     ];
     render(<UserList users={users} />);
+
     users.forEach((user) => {
       const link = screen.getByRole("link", { name: user.name });
       expect(link).toBeInTheDocument();

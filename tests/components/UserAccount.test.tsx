@@ -13,18 +13,23 @@ describe("UserAccount", () => {
     user.isAdmin = true;
     render(<UserAccount user={user} />);
     const button = screen.getByRole("button");
+
     expect(button).toBeInTheDocument();
     expect(button).toHaveTextContent(/Edit/i);
   });
+
   it(`Should not return edit button if user is NOT admin`, () => {
     user.isAdmin = false;
     render(<UserAccount user={user} />);
     const button = screen.queryByRole("button");
+
     expect(button).not.toBeInTheDocument();
   });
+
   it(`Should return username if user object is passed`, () => {
     render(<UserAccount user={user} />);
     const username = screen.getByText(new RegExp(user.name, "i"));
+
     expect(username).toBeInTheDocument();
   });
 });
