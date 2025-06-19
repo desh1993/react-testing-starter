@@ -1,7 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import ProductList from "../../src/components/ProductList";
 import { server } from "../mocks/server";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, delay } from "msw";
 import { db } from "../mocks/db";
 
 describe("ProductList", () => {
@@ -41,12 +45,46 @@ describe("ProductList", () => {
   });
 
   it("Should render an error if  error is detected", async () => {
-    server.use(http.get("/products", async () => HttpResponse.error()));
+    server.use(http.get("/products", async () => HttpResponse.error())); //mocks the call to return error
 
     render(<ProductList />);
 
     const error = await screen.findByText(/error/i);
 
     expect(error).toBeInTheDocument();
+  });
+
+  it("Should render a loding indicator when fetching data", async () => {
+    server.use(
+      http.get("/products", async () => {
+        await delay();
+        return HttpResponse.json([]);
+      })
+    );
+
+    render(<ProductList />);
+
+    const loading = await screen.findByText(/loading/i);
+
+    expect(loading).toBeInTheDocument();
+  });
+
+  it("Should remove the loding indicator if fetching data fails", async () => {
+    render(<ProductList />);
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+  });
+
+  it("Should remove the loding indicator after fetching data", async () => {
+    server.use(
+      http.get("/products", async () => {
+        await delay(100);
+        HttpResponse.json([]);
+      })
+    );
+
+    render(<ProductList />);
+
+    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
   });
 });
